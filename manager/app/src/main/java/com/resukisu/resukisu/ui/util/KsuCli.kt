@@ -109,8 +109,11 @@ suspend fun isOfficialSignature(): Boolean = withContext(Dispatchers.IO) {
     val out = shell.newJob()
         .add("${getKsuDaemonPath()} debug get-sign ${ksuApp.packageResourcePath}")
         .to(ArrayList<String>(), null).exec().out
-    out.firstOrNull()?.trim()
-        .orEmpty() == "size: 0x377, hash: d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64"
+    val sign = out.firstOrNull()?.trim().orEmpty()
+    // Venus: accept the official ReSukiSU cert and our own build cert, so the
+    // "not the official manager" warning is not shown for our signed manager.
+    sign == "size: 0x377, hash: d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64" ||
+    sign == "size: 0x342, hash: cf823b1d7cb8b48b9eb035d4c8d2bc3359d6812721ab1eb5f9450cf8903adb55"
 }
 
 suspend fun getFeatureStatus(feature: String): String = withContext(Dispatchers.IO) {
